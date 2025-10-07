@@ -66,9 +66,9 @@ node_modules/
 # ------------------------------------------------------------
 # Neovim / Vim state
 # ------------------------------------------------------------
-.config/nvim/plugged/
-.config/nvim/lazy-lock.json
-.config/nvim/.netrwhist
-.config/nvim/session/
-.config/nvim/undodir/
-.config/nvim/.log
+nvim/.config/nvim/plugged/
+nvim/.config/nvim/lazy-lock.json
+nvim/.config/nvim/.netrwhist
+nvim/.config/nvim/session/
+nvim/.config/nvim/undodir/
+nvim/.config/nvim/.log
