@@ -161,31 +161,7 @@ function vi-yank-xclip {
 zle -N vi-yank-xclip
 bindkey -M vicmd 'y' vi-yank-xclip
 
-# =====================
-# ctrl+f does fzf
-# =====================
-# fzf-file-search() {
-#   item="$(find '/' -type d \( -path '/proc/*' -o -path '/dev/*' \) -prune -false -o -iname '*' 2>/dev/null | FZF_DEFAULT_OPTS="--height ${FZF_TMUX_HEIGHT:-40%} --rev    erse --bind=ctrl-z:ignore $FZF_DEFAULT_OPTS $FZF_CTRL_T_OPTS" $(__fzfcmd) -m "$@")"
-#   if [[ -d ${item} ]]; then
-#     cd "${item}" || return 1
-#   elif [[ -f ${item} ]]; then
-#     (vi "${item}" < /dev/tty) || return 1
-#   else
-#     return 1
-#   fi
-#    zle accept-line
-# }
-# zle     -N   fzf-file-search
-
-# have to eval fzf after enabling vi mode
-eval "$(fzf --zsh)"
-
-bindkey -s '^f' 'cd **\t'
-bindkey -a '^g' vi-insert
-
-# =====================
-# FZF Functions
-# =====================
+source $ZSH/custom/fzf.zsh
 
 # Docker
 dcz() {
