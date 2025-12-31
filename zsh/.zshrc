@@ -116,11 +116,9 @@ alias ls="gls --group-directories-first --color=auto"
 alias forge="python -i ~/Dev/runeforge-pykit/bootforge.py"
 
 # Amirs Recs
-DISABLE_UNTRACTED_FILES_DIRTY="true"
+DISABLE_UNTRACKED_FILES_DIRTY="true"
 SAVEHIST=10000
 HISTFILE=~/.zsh_history
-plugins=(git)
-source $ZSH/oh-my-zsh.sh
 set -o vi
 
 # =====================
@@ -162,6 +160,46 @@ zle -N vi-yank-xclip
 bindkey -M vicmd 'y' vi-yank-xclip
 
 source $ZSH/custom/fzf.zsh
+
+# Wrapper for omz update to handle Stow symlinks
+# The custom directory is symlinked via Stow, which causes git issues during updates
+omz() {
+  setopt localoptions noksharrays
+  [[ $# -gt 0 ]] || {
+    _omz::help
+    return 1
+  }
+  
+  local command="$1"
+  shift
+  
+  # Handle update command specially if custom is a symlink
+  if [[ "$command" == "update" && -L "$ZSH/custom" ]]; then
+    local custom_link="$ZSH/custom"
+    local link_target=$(readlink -f "$custom_link")
+    
+    # Temporarily remove symlink and create empty directory
+    rm "$custom_link"
+    mkdir -p "$custom_link"
+    
+    # Run the update (ensure symlink is restored even on error)
+    _omz::update "$@"
+    local ret=$?
+    
+    # Always restore the symlink, even if update failed
+    rm -rf "$custom_link" 2>/dev/null
+    ln -s "$link_target" "$custom_link" 2>/dev/null
+    
+    return $ret
+  fi
+  
+  # For all other commands, run normally
+  (( ${+functions[_omz::$command]} )) || {
+    _omz::help
+    return 1
+  }
+  _omz::$command "$@"
+}
 
 # Docker
 dcz() {
