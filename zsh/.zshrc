@@ -245,3 +245,4 @@ else
   [ -d "/usr/lib/jvm/default/bin" ] && export PATH="/usr/lib/jvm/default/bin:$PATH"
   [ -d "$HOME/.sdkman/candidates/java/current/bin" ] && export PATH="$HOME/.sdkman/candidates/java/current/bin:$PATH"
 fi
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"

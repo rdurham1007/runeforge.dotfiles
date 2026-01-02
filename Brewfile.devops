@@ -1,0 +1,37 @@
+tap "microsoft/mssql-release"
+
+# Core CLI / workflow
+brew "bat"
+brew "fzf"
+brew "git"
+brew "jq"
+brew "lazygit"
+brew "ripgrep"
+brew "tree"
+brew "unzip"
+brew "zoxide"
+
+# Editor + terminal workflow
+brew "neovim"
+brew "tmux"
+brew "gitmux"
+brew "stow"
+
+# Build / toolchains
+brew "cmake"
+brew "gcc"
+
+# Language runtimes / tooling
+brew "lua"
+brew "pyenv"
+brew "ruff"
+brew "nvm"
+brew "openjdk@11"
+
+# Optional: terminal AI agent (cross-platform)
+brew "opencode"  # :contentReference[oaicite:3]{index=3}
+
+# macOS-only (tmux pasteboard integration)
+if OS.mac?
+  brew "reattach-to-user-namespace"
+end
