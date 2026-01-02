@@ -77,7 +77,15 @@ source $ZSH/oh-my-zsh.sh
 # User configuration
 
 export NVM_DIR="$HOME/.nvm"
-[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
+# Load nvm - check multiple possible locations for cross-platform compatibility
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # macOS - check both Intel and Apple Silicon Homebrew locations
+  [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
+  [ -s "/usr/local/opt/nvm/nvm.sh" ] && \. "/usr/local/opt/nvm/nvm.sh"
+else
+  # Linux - standard nvm installation
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+fi
 export PYENV_ROOT="$HOME/.pyenv"
 command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
@@ -112,7 +120,18 @@ alias vi="nvim"
 alias vim="nvim"
 alias v="nvim"
 alias py="python"
-alias ls="gls --group-directories-first --color=auto"
+# Cross-platform ls alias
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # macOS - use GNU ls from coreutils if available
+  if command -v gls >/dev/null; then
+    alias ls="gls --group-directories-first --color=auto"
+  else
+    alias ls="ls -G"
+  fi
+else
+  # Linux - use standard GNU ls
+  alias ls="ls --group-directories-first --color=auto"
+fi
 alias forge="python -i ~/Dev/runeforge-pykit/bootforge.py"
 
 # Amirs Recs
@@ -151,13 +170,19 @@ echo -ne '\e[5 q' # Use beam shape cursor on startup.
 preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 
 # =========================
-# yank to clipboard
-function vi-yank-xclip {
+# yank to clipboard - cross-platform
+function vi-yank-clipboard {
     zle vi-yank
-   echo "$CUTBUFFER" | pbcopy
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "$CUTBUFFER" | pbcopy
+    elif command -v xclip >/dev/null; then
+        echo "$CUTBUFFER" | xclip -selection clipboard
+    elif command -v xsel >/dev/null; then
+        echo "$CUTBUFFER" | xsel --clipboard --input
+    fi
 }
-zle -N vi-yank-xclip
-bindkey -M vicmd 'y' vi-yank-xclip
+zle -N vi-yank-clipboard
+bindkey -M vicmd 'y' vi-yank-clipboard
 
 source $ZSH/custom/fzf.zsh
 
@@ -210,4 +235,13 @@ dcz() {
 # usage dcz [start,stop,logs]
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 export PATH="$HOME/.local/bin:$PATH"
-export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
+# Add Java to PATH - cross-platform
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # macOS - check both Intel and Apple Silicon Homebrew locations
+  [ -d "/opt/homebrew/opt/openjdk@11/bin" ] && export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
+  [ -d "/usr/local/opt/openjdk@11/bin" ] && export PATH="/usr/local/opt/openjdk@11/bin:$PATH"
+else
+  # Linux - common Java installation paths
+  [ -d "/usr/lib/jvm/default/bin" ] && export PATH="/usr/lib/jvm/default/bin:$PATH"
+  [ -d "$HOME/.sdkman/candidates/java/current/bin" ] && export PATH="$HOME/.sdkman/candidates/java/current/bin:$PATH"
+fi
